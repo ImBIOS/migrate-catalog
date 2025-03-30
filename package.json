@@ -1,5 +1,5 @@
 {
-  "name": "migrate-catalog",
+  "name": "@imbios/migrate-catalog",
   "version": "1.0.1",
   "description": "**Catalog Migrator** is a CLI tool for automating the migration of dependency versions from a centralized `catalog` in your `pnpm-workspace.yaml` file to all `package.json` files in a monorepo. This tool streamlines version updates in pnpm workspaces, saving time and reducing manual errors.",
   "type": "module",
@@ -11,6 +11,10 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ImBIOS/migrate-catalog.git"
   },
   "keywords": [
     "catalog migration",
@@ -50,11 +54,6 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/",
-    "registry.npmjs.org": {
-      "access": "public"
-    },
-    "registry.github.com": {
-      "access": "public"
-    }
+    "@imbios:registry": "https://npm.pkg.github.com"
   }
 }
