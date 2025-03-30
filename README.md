@@ -12,16 +12,32 @@
 
 ## Installation
 
+### From npm Registry
+
 Install the package globally with npm:
 
 ```bash
-npm install -g migrate-catalog
+npm install -g @imbios/migrate-catalog
 ```
 
 Or use it via npx:
 
 ```bash
-npx migrate-catalog
+npx @imbios/migrate-catalog
+```
+
+### From GitHub Registry
+
+Add this to your `.npmrc` file:
+
+```
+@imbios:registry=https://npm.pkg.github.com
+```
+
+Then install the package:
+
+```bash
+npm install -g @imbios/migrate-catalog
 ```
 
 ## Usage
@@ -49,6 +65,12 @@ The script will:
 ## Contributing
 
 Contributions are welcome! Fork the repository, create your feature branch, and submit a pull request with your enhancements.
+
+## Documentation
+
+- [Publishing Guide](.github/PUBLISHING.md) - Instructions for setting up and using the automated publishing workflow
+- [Manual Publishing Guide](.github/MANUAL_PUBLISHING.md) - Instructions for manually publishing to both registries
+- [Troubleshooting](TROUBLESHOOTING.md) - Common issues and their solutions
 
 ## License
 
