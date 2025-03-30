@@ -14,9 +14,12 @@ jobs:
           node-version: "22.x"
           registry-url: "https://npm.pkg.github.com"
           scope: "@imbios"
-      - run: npm ci
-      - run: npm test
-      - run: npm run build
-      - run: npm publish
+      - uses: pnpm/action-setup@v2
+        with:
+          version: latest
+      - run: pnpm install
+      - run: pnpm test
+      - run: pnpm run build
+      - run: pnpm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
