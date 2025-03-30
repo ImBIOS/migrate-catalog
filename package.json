@@ -1,9 +1,16 @@
 {
   "name": "migrate-catalog",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "**Catalog Migrator** is a CLI tool for automating the migration of dependency versions from a centralized `catalog` in your `pnpm-workspace.yaml` file to all `package.json` files in a monorepo. This tool streamlines version updates in pnpm workspaces, saving time and reducing manual errors.",
+  "type": "module",
+  "main": "dist/migrate-catalog.js",
+  "types": "dist/migrate-catalog.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest"
   },
   "keywords": [
     "catalog migration",
@@ -21,6 +28,33 @@
   },
   "license": "MIT",
   "bin": {
-    "migrate-catalog": "./migrate-catalog.js"
+    "migrate-catalog": "./dist/migrate-catalog.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "devDependencies": {
+    "@types/mock-fs": "^4.13.4",
+    "@types/node": "^20.11.28",
+    "@vitest/coverage-v8": "^1.4.0",
+    "mock-fs": "^5.2.0",
+    "typescript": "^5.4.2",
+    "vitest": "^1.4.0"
+  },
+  "dependencies": {
+    "glob": "^10.3.10",
+    "yaml": "^2.4.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/",
+    "registry.npmjs.org": {
+      "access": "public"
+    },
+    "registry.github.com": {
+      "access": "public"
+    }
   }
 }

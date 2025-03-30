@@ -7,6 +7,7 @@
 - **Automated Migration:** Scans all `package.json` files and replaces `"catalog:"` with the correct version from your `pnpm-workspace.yaml` catalog.
 - **Monorepo Support:** Built to work seamlessly in multi-package repositories managed by pnpm.
 - **Easy Integration:** Ideal for CI/CD pipelines and local development environments.
+- **TypeScript Support:** Written in TypeScript with full type definitions included.
 - **Customizable:** Extendable for additional dependency sections or custom update logic.
 
 ## Installation
