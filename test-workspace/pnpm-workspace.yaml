@@ -1,0 +1,8 @@
+packages: ["packages/*"]
+catalog:
+  react: "^18.2.0"
+  react-dom: "^18.2.0"
+catalogs:
+  dev:
+    typescript: "^5.0.0"
+    eslint: "^8.38.0"

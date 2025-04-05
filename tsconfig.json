@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "strict": true,
     "declaration": true,
@@ -12,6 +12,13 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "test"]
+  "include": [
+    "src/**/*",
+    "vitest.config.ts",
+    "test",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "eslint.config.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
 }

@@ -7,9 +7,15 @@ import { migrateCatalog } from "../src/migrate-catalog";
 describe("Error Handling", () => {
   beforeEach(() => {
     // Mock console methods
-    vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(console, "warn").mockImplementation(() => {});
-    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {
+      return;
+    });
+    vi.spyOn(console, "warn").mockImplementation(() => {
+      return;
+    });
+    vi.spyOn(console, "error").mockImplementation(() => {
+      return;
+    });
   });
 
   afterEach(() => {

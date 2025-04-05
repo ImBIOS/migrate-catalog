@@ -7,6 +7,7 @@ import yaml from "yaml";
 import {
   findPackageFiles,
   migrateCatalog,
+  PackageJson,
   readJsonFile,
   readYamlFile,
   updatePackageFile,
@@ -17,8 +18,11 @@ describe("migrate-catalog", () => {
   // Setup and teardown for each test
   beforeEach(() => {
     // Mock console methods
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     vi.spyOn(console, "log").mockImplementation(() => {});
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     vi.spyOn(console, "warn").mockImplementation(() => {});
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
@@ -101,7 +105,7 @@ describe("migrate-catalog", () => {
       await writeJsonFile("test-package.json", data);
 
       const fileContent = await fs.readFile("test-package.json", "utf8");
-      const parsed = JSON.parse(fileContent);
+      const parsed = JSON.parse(fileContent) as PackageJson;
 
       expect(parsed).toEqual(data);
       expect(fileContent.endsWith("\n")).toBe(true);
@@ -109,7 +113,7 @@ describe("migrate-catalog", () => {
   });
 
   describe("findPackageFiles", () => {
-    it("should find all package.json files excluding node_modules", async () => {
+    it("should find all package.json files excluding node_modules", () => {
       mockFs({
         "package.json": "{}",
         packages: {
@@ -127,7 +131,7 @@ describe("migrate-catalog", () => {
         },
       });
 
-      const files = await findPackageFiles();
+      const files = findPackageFiles();
 
       expect(files).toHaveLength(3);
       expect(files).toContain("package.json");
@@ -136,7 +140,7 @@ describe("migrate-catalog", () => {
       expect(files).not.toContain("node_modules/some-package/package.json");
     });
 
-    it("should respect custom pattern and options", async () => {
+    it("should respect custom pattern and options", () => {
       mockFs({
         "package.json": "{}",
         packages: {
@@ -146,7 +150,7 @@ describe("migrate-catalog", () => {
         },
       });
 
-      const files = await findPackageFiles("packages/**/package.json");
+      const files = findPackageFiles("packages/**/package.json");
 
       expect(files).toHaveLength(1);
       expect(files).toContain("packages/package-a/package.json");
@@ -288,7 +292,7 @@ describe("migrate-catalog", () => {
       const updated = await updatePackageFile("invalid.json", {});
 
       expect(updated).toBe(false);
-      expect(console.warn).toHaveBeenCalledWith(
+      expect(vi.mocked(console.warn).mock.calls[0][0]).toEqual(
         expect.stringContaining("Skipping invalid.json")
       );
     });

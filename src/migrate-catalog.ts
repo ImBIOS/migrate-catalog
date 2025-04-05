@@ -4,37 +4,28 @@
 import fs from "fs/promises";
 import { globSync } from "glob";
 import path from "path";
-import { fileURLToPath } from "url";
 import yaml from "yaml";
 
-// For consistency in ESM
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 // Define interfaces for the types
-interface CatalogMap {
-  [key: string]: string;
-}
+type CatalogMap = Record<string, string>;
 
-interface CatalogsMap {
-  [key: string]: CatalogMap;
-}
+type CatalogsMap = Record<string, CatalogMap>;
 
-interface PackageJson {
+export type PackageJson = {
   name?: string;
   dependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
   peerDependencies?: Record<string, string>;
   optionalDependencies?: Record<string, string>;
-  [key: string]: any;
-}
+  [key: string]: unknown;
+};
 
-interface WorkspaceData {
+type WorkspaceData = {
   packages?: string[];
   catalog?: CatalogMap;
   catalogs?: CatalogsMap;
-  [key: string]: any;
-}
+  [key: string]: unknown;
+};
 
 /**
  * Read and parse a YAML file
@@ -43,7 +34,7 @@ interface WorkspaceData {
  */
 async function readYamlFile(filePath: string): Promise<WorkspaceData> {
   const content = await fs.readFile(filePath, "utf8");
-  return yaml.parse(content);
+  return yaml.parse(content) as WorkspaceData;
 }
 
 /**
@@ -53,7 +44,7 @@ async function readYamlFile(filePath: string): Promise<WorkspaceData> {
  */
 async function readJsonFile(filePath: string): Promise<PackageJson> {
   const content = await fs.readFile(filePath, "utf8");
-  return JSON.parse(content);
+  return JSON.parse(content) as PackageJson;
 }
 
 /**
@@ -75,12 +66,43 @@ async function writeJsonFile(
  * @param {Object} options - Options for glob
  * @returns {Promise<string[]>} Array of file paths
  */
-async function findPackageFiles(
-  pattern: string = "**/package.json",
+function findPackageFiles(
+  pattern = "**/package.json",
   options: { ignore: string | string[] } = { ignore: "**/node_modules/**" }
-): Promise<string[]> {
+): string[] {
   // Using globSync since we've imported globSync directly
   return globSync(pattern, options);
+}
+
+/**
+ * Parse command line arguments
+ * @returns {Object} Parsed arguments
+ */
+function parseArgs(): {
+  workspace: string;
+  pattern: string;
+  dryRun: boolean;
+} {
+  const args = process.argv.slice(2);
+  const result = {
+    workspace: path.join(process.cwd(), "pnpm-workspace.yaml"),
+    pattern: "**/package.json",
+    dryRun: false,
+  };
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+
+    if (arg === "--workspace" && i + 1 < args.length) {
+      result.workspace = args[++i];
+    } else if (arg === "--pattern" && i + 1 < args.length) {
+      result.pattern = args[++i];
+    } else if (arg === "--dry-run") {
+      result.dryRun = true;
+    }
+  }
+
+  return result;
 }
 
 /**
@@ -88,18 +110,24 @@ async function findPackageFiles(
  * @param {string} filePath - Path to package.json
  * @param {CatalogMap} catalog - Main catalog object
  * @param {CatalogsMap} catalogs - Named catalogs object
+ * @param {boolean} dryRun - Whether to perform a dry run (no file writes)
  * @returns {Promise<boolean>} Whether the file was updated
  */
 async function updatePackageFile(
   filePath: string,
   catalog: CatalogMap = {},
-  catalogs: CatalogsMap = {}
+  catalogs: CatalogsMap = {},
+  dryRun = false
 ): Promise<boolean> {
   let pkgJson: PackageJson;
   try {
     pkgJson = await readJsonFile(filePath);
+    console.log(
+      `Package JSON before update:`,
+      JSON.stringify(pkgJson, null, 2)
+    );
   } catch (err) {
-    console.warn(`Skipping ${filePath} (invalid JSON)`);
+    console.warn(`Skipping ${filePath} (invalid JSON)`, err);
     return false;
   }
 
@@ -113,7 +141,9 @@ async function updatePackageFile(
 
   for (const section of depSections) {
     if (pkgJson[section]) {
+      console.log(`Processing section ${section} in ${filePath}`);
       for (const [dep, version] of Object.entries(pkgJson[section] || {})) {
+        console.log(`Checking dependency: "${dep}" with version "${version}"`);
         if (typeof version === "string" && version.startsWith("catalog:")) {
           const catalogRef = version.slice("catalog:".length).trim();
           let newVersion: string | null = null;
@@ -121,6 +151,11 @@ async function updatePackageFile(
           if (catalogRef === "") {
             // Top-level catalog
             newVersion = catalog[dep];
+            console.log(
+              `Looking up "${dep}" in top-level catalog. Result: ${
+                newVersion || "not found"
+              }`
+            );
             if (!newVersion) {
               console.warn(
                 `Top-level catalog: No entry for "${dep}" in ${filePath}`
@@ -128,8 +163,18 @@ async function updatePackageFile(
             }
           } else {
             // Named catalog from catalogs
+            console.log(
+              `Looking up "${dep}" in catalog "${catalogRef}". Catalog exists: ${Boolean(
+                catalogs[catalogRef]
+              )}`
+            );
             if (catalogs[catalogRef]) {
               newVersion = catalogs[catalogRef][dep];
+              console.log(
+                `Result for "${dep}" in catalog "${catalogRef}": ${
+                  newVersion || "not found"
+                }`
+              );
               if (!newVersion) {
                 console.warn(
                   `Catalog "${catalogRef}": No entry for "${dep}" in ${filePath}`
@@ -144,18 +189,32 @@ async function updatePackageFile(
 
           if (newVersion) {
             if (pkgJson[section]) {
-              pkgJson[section]![dep] = newVersion;
+              if (dryRun) {
+                console.log(
+                  `Would update "${dep}" in ${filePath} to "${newVersion}"`
+                );
+              } else {
+                pkgJson[section][dep] = newVersion;
+                console.log(
+                  `Updated "${dep}" in ${filePath} to "${newVersion}"`
+                );
+              }
+              updated = true;
             }
-            console.log(`Updated "${dep}" in ${filePath} to "${newVersion}"`);
-            updated = true;
           }
         }
       }
     }
   }
 
-  if (updated) {
+  if (updated && !dryRun) {
+    console.log(
+      `Writing updated package.json:`,
+      JSON.stringify(pkgJson, null, 2)
+    );
     await writeJsonFile(filePath, pkgJson);
+  } else {
+    console.log(`No updates needed for ${filePath}`);
   }
 
   return updated;
@@ -163,29 +222,54 @@ async function updatePackageFile(
 
 /**
  * Main function to migrate catalog versions to package.json files
- * @param {string} workspacePath - Path to workspace file
+ * @param {Object} options - Migration options
  * @returns {Promise<void>}
  */
 async function migrateCatalog(
-  workspacePath: string = path.join(process.cwd(), "pnpm-workspace.yaml")
+  options: {
+    workspacePath?: string;
+    pattern?: string;
+    dryRun?: boolean;
+  } = {}
 ): Promise<void> {
+  const workspacePath =
+    options.workspacePath ?? path.join(process.cwd(), "pnpm-workspace.yaml");
+  const pattern = options.pattern ?? "**/package.json";
+  const dryRun = options.dryRun ?? false;
+
+  console.log(`Reading workspace from: ${workspacePath}`);
+
   // Read and parse the pnpm-workspace.yaml file
   const workspaceData = await readYamlFile(workspacePath);
 
-  const catalog = workspaceData.catalog || {};
-  const catalogs = workspaceData.catalogs || {};
+  console.log(`Workspace data:`, JSON.stringify(workspaceData, null, 2));
+
+  const catalog = workspaceData.catalog ?? {};
+  const catalogs = workspaceData.catalogs ?? {};
+
+  console.log(`Catalog:`, JSON.stringify(catalog, null, 2));
+  console.log(`Catalogs:`, JSON.stringify(catalogs, null, 2));
 
   // Find all package.json files (excluding node_modules)
-  const pkgFiles = await findPackageFiles();
+  const pkgFiles = findPackageFiles(pattern);
+
+  console.log(`Found package files:`, pkgFiles);
 
   for (const pkgFile of pkgFiles) {
     const fullPath = path.resolve(pkgFile);
-    await updatePackageFile(fullPath, catalog, catalogs);
+    console.log(`Processing: ${fullPath}`);
+    await updatePackageFile(fullPath, catalog, catalogs, dryRun);
   }
 }
 
 function main(): void {
-  migrateCatalog().catch((err) => {
+  const args = parseArgs();
+
+  migrateCatalog({
+    workspacePath: args.workspace,
+    pattern: args.pattern,
+    dryRun: args.dryRun,
+  }).catch((err) => {
     console.error(err);
     process.exit(1);
   });
@@ -195,7 +279,8 @@ function main(): void {
 if (
   typeof process !== "undefined" &&
   process.argv &&
-  import.meta.url === `file://${process.argv[1]}`
+  (import.meta.url === `file://${process.argv[1]}` ||
+    process.argv[1].endsWith("migrate-catalog"))
 ) {
   main();
 }

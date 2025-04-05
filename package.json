@@ -1,16 +1,26 @@
 {
-  "name": "@imbios/migrate-catalog",
-  "version": "1.0.4",
+  "name": "migrate-catalog",
+  "version": "1.0.5",
   "description": "**Catalog Migrator** is a CLI tool for automating the migration of dependency versions from a centralized `catalog` in your `pnpm-workspace.yaml` file to all `package.json` files in a monorepo. This tool streamlines version updates in pnpm workspaces, saving time and reducing manual errors.",
   "type": "module",
   "main": "dist/migrate-catalog.js",
   "types": "dist/migrate-catalog.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/migrate-catalog.js",
+      "types": "./dist/migrate-catalog.d.ts"
+    }
+  },
   "scripts": {
-    "build": "tsc",
-    "prepublishOnly": "npm run build",
+    "build": "tsc -p tsconfig.build.json",
+    "prepare": "pnpm run build",
+    "prepublishOnly": "pnpm run build",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:e2e": "vitest run test/e2e.test.ts",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix ."
   },
   "repository": {
     "type": "git",
@@ -40,11 +50,15 @@
     "LICENSE"
   ],
   "devDependencies": {
+    "@eslint/js": "^9.24.0",
     "@types/mock-fs": "^4.13.4",
     "@types/node": "^20.11.28",
     "@vitest/coverage-v8": "^1.4.0",
+    "eslint": "^9.24.0",
+    "jiti": "^2.4.2",
     "mock-fs": "^5.2.0",
-    "typescript": "^5.4.2",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.29.0",
     "vitest": "^1.4.0"
   },
   "dependencies": {
