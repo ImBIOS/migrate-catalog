@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import type { PackageJson } from "../src/index";
+import type { PackageJson } from "../../src/index";
 
 const execAsync = promisify(exec);
 

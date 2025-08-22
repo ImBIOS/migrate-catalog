@@ -2,10 +2,10 @@ import mockFs from "mock-fs";
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 
 // Import the migrateCatalog function
-import { migrateCatalog } from "../src/index";
+import { migrateCatalog } from "./index.js";
 
 // Manually mock the function
-vi.mock("../src/index", () => ({
+vi.mock("./index.js", () => ({
   migrateCatalog: vi.fn(),
 }));
 

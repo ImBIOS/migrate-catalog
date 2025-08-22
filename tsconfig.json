@@ -17,8 +17,7 @@
     "vitest.config.ts",
     "test",
     "**/*.test.ts",
-    "**/*.spec.ts",
-    "eslint.config.ts"
+    "**/*.spec.ts"
   ],
   "exclude": ["node_modules", "dist"]
 }

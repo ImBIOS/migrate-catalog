@@ -1,8 +1,6 @@
 import fs from "node:fs/promises";
 import mockFs from "mock-fs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import yaml from "yaml";
-
 // Import functions to test
 import {
   findPackageFiles,
@@ -12,7 +10,8 @@ import {
   readYamlFile,
   updatePackageFile,
   writeJsonFile,
-} from "../src/index";
+} from "../../src/index";
+import yaml from "../../src/yaml.js";
 
 describe("migrate-catalog", () => {
   // Setup and teardown for each test

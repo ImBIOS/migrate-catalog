@@ -1,11 +1,10 @@
 import mockFs from "mock-fs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import yaml from "yaml";
-
-import { migrateCatalog } from "../src/index";
+import { migrateCatalog } from "../../src/index";
+import yaml from "../../src/yaml.js";
 
 // Mock the find module
-vi.mock("../src/find.js", () => ({
+vi.mock("../../src/find.js", () => ({
   findPackageFiles: vi.fn(),
 }));
 
@@ -23,7 +22,7 @@ describe("Error Handling", () => {
     });
 
     // Reset and setup findPackageFiles mock with default behavior
-    const { findPackageFiles } = await import("../src/find.js");
+    const { findPackageFiles } = await import("../../src/find.js");
     vi.mocked(findPackageFiles).mockReturnValue(["package.json"]);
   });
 
@@ -155,7 +154,7 @@ describe("Error Handling", () => {
 
   describe("File discovery errors", () => {
     it("should handle no package.json files found", async () => {
-      const { findPackageFiles } = await import("../src/find.js");
+      const { findPackageFiles } = await import("../../src/find.js");
 
       // Mock findPackageFiles to return empty array
       vi.mocked(findPackageFiles).mockReturnValue([]);
