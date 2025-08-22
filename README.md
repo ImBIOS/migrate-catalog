@@ -17,13 +17,13 @@
 Install the package globally with npm:
 
 ```bash
-npm install -g migrate-catalog
+pnpm install -g migrate-catalog
 ```
 
-Or use it via npx:
+Or use it via pnpx:
 
 ```bash
-npx migrate-catalog
+pnpx migrate-catalog@latest
 ```
 
 ### From GitHub Registry
@@ -37,7 +37,7 @@ Add this to your `.npmrc` file:
 Then install the package:
 
 ```bash
-npm install -g migrate-catalog
+pnpm install -g migrate-catalog
 ```
 
 ## Usage
@@ -141,13 +141,13 @@ The tool includes a comprehensive test suite:
 
 ```bash
 # Run all tests
-npm test
+pnpm test
 
 # Run only the end-to-end tests
-npm run test:e2e
+pnpm run test:e2e
 
 # Generate test coverage report
-npm run test:coverage
+pnpm run test:coverage
 ```
 
 The end-to-end tests validate the tool's functionality using a real monorepo structure with catalog definitions.

@@ -237,21 +237,19 @@ async function migrateCatalog(
   const pattern = options.pattern ?? "**/package.json";
   const dryRun = options.dryRun ?? false;
 
-  console.log(`Reading workspace from: ${workspacePath}`);
-
   // Read and parse the pnpm-workspace.yaml file
   const workspaceData = await readYamlFile(workspacePath);
-
-  console.log(`Workspace data:`, JSON.stringify(workspaceData, null, 2));
 
   const catalog = workspaceData.catalog ?? {};
   const catalogs = workspaceData.catalogs ?? {};
 
-  console.log(`Catalog:`, JSON.stringify(catalog, null, 2));
-  console.log(`Catalogs:`, JSON.stringify(catalogs, null, 2));
-
   // Find all package.json files (excluding node_modules)
   const pkgFiles = findPackageFiles(pattern);
+
+  // If no package files are found, quietly exit without logging
+  if (pkgFiles.length === 0) {
+    return;
+  }
 
   console.log(`Found package files:`, pkgFiles);
 

@@ -2,11 +2,11 @@
   "name": "app",
   "version": "1.0.0",
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "catalog:",
+    "react-dom": "catalog:"
   },
   "devDependencies": {
-    "typescript": "^5.0.0",
-    "eslint": "^8.38.0"
+    "typescript": "catalog:dev",
+    "eslint": "^catalog:dev"
   }
 }
